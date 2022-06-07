@@ -5,9 +5,18 @@ const mobileMenu = document.querySelector(".mobile-menu");
 const menu = document.querySelector(".menu-items");
 const loadingImg = document.querySelector(".loading");
 const headings = document.querySelectorAll(".headings");
+const container = document.querySelector(".container");
+const typeHeading = document.querySelector(".headings.type");
+let value = ''
 
 async function fetchFromAPI () {
-    const response = await fetch("https://inshorts.deta.dev/news?category=science")
+    mainStory.innerHTML=""
+    others.innerHTML=""
+    loadingImg.style.display='flex';
+    headings.forEach(heading=>{
+        heading.style.display ="none"
+    })
+    const response = await fetch("https://inshorts.deta.dev/news?category=" +value)
     const res = await response.json();
 
     if (res) {
@@ -18,7 +27,7 @@ async function fetchFromAPI () {
     }
 
     data = res.data;
-    console.log(data);
+    //console.log(data);
 
     const stories = data.slice(1).map(d => {
         return `<div class="article">
@@ -36,8 +45,6 @@ async function fetchFromAPI () {
             </div>
         </div>`
     })
-
-    console.log(stories);
     mainStory.innerHTML = `<div class="article">
     <div class="non-text">
         <div class="image"><img src="${data[0].imageUrl}" alt=""></div>
@@ -52,7 +59,7 @@ async function fetchFromAPI () {
     <div class="more"><a href="${data[0].readMoreUrl}">Read more</a></div>
     </div>
 </div>`
-  others.innerHTML += stories.join("");     
+  others.innerHTML = stories.join("");     
 }
 
 fetchFromAPI()
@@ -60,4 +67,19 @@ fetchFromAPI()
 
 mobileMenu.addEventListener("click", ()=>{
     menu.classList.toggle("open");
+
+})
+
+menu.addEventListener("click", (e)=>{
+    key = e.target;
+    const links = [...menu.children];
+    if (key.tagName == 'LI'){
+        typeHeading.textContent = `${key.dataset.type} News`
+        for (link of links){
+            link.classList.remove("active");
+        }
+        key.classList.add("active");
+        value=key.id;
+        fetchFromAPI()
+    }
 })
